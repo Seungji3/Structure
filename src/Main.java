@@ -13,6 +13,6 @@ public class Main {
             System.out.println(myLinkedList.get(i));
             System.out.println(myLinkedList.get(i).getClass().getSimpleName());
         }
-
+        System.out.println(myLinkedList.size());
     }
 }

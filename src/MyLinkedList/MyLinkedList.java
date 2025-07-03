@@ -1,7 +1,8 @@
 package MyLinkedList;
 
-public class MyLinkedList<Field> {
+public class MyLinkedList {
     Node head = null;
+    Node tail = null;
     private int length = 0;
 
     private void indexOutOfException(int index) {
@@ -12,7 +13,8 @@ public class MyLinkedList<Field> {
 //    1. 안에서 제네릭 값 중 아무거나 들어올수있게 변경
 //    2. Node<Field> prev 추가
 //    2.1 특정 위치에 add하는 메서드 insert로 네이밍 변경
-//    3. get? remove? for의 두개의 index가 이동할수있게 변경
+//    3. insert? remove? for의 두개의 index가 이동할수있게 변경
+//    풀서치? 생각도 해야함
 
     public void clear() {
         this.head = null;
@@ -23,131 +25,135 @@ public class MyLinkedList<Field> {
         return length == 0;
     }
 
-    public int indexOf(Field data) {
+    public int indexOf(Object data) {
         Node current = this.head;
-        for (int i = 0; i < length; i++) {
-            if (current.data.equals(data)) {
-                return i;
-            }
+        int i = 0;
+        while (i < size()) {
+            if (current.data.equals(data)) return i;
             current = current.next;
+            i++;
         }
         return -1;
     }
 
-    public boolean contains(Field data) {
-        for (Node current = this.head; current != null; ) {
-            if (current.data.equals(data))
-                return true;
+    // Full search?
+    public boolean contains(Object data) {
+        Node current = this.head;
+        int i = 0;
+        while (i < size()) {
+            if (current.data.equals(data)) return true;
+            current = current.next;
+            i++;
         }
         return false;
     }
 
     public int size() {
+        length = 0;
+        Node current = this.head;
+        while (current != null) {
+            length += 1;
+            current = current.next;
+        }
         return length;
     }
 
-    public void add(Field data) {
+    public void add(Object data) {
         if (head == null) {
             head = new Node<>(data);
+            tail = head;
         } else {
-            Node current = this.head;
-            while (current.next != null) {
-                current = current.next;
-            }
-            current.next = new Node<>(data);
+            Node preNode = tail;
+            preNode.next = new Node(data);
+            tail = tail.next;
+            tail.prev = preNode;
         }
-        length++;
     }
 
-    public void add(int index, Field data) {
-        indexOutOfException(length == index ? index - 1 : index);
+//    public void add(int index, Object data) {
+
+    /// /        indexOutOfException(length == index ? index - 1 : index);
+//
+//        Node current = this.head;
+//        Node endNode = null;
+//        if (index == 0) {
+//            endNode = this.head;
+//            this.head = new Node<>(data, endNode);
+//        } else if (index != length) {
+//            int count = 1;
+//            while (count < index) {
+//                current = current.next;
+//                count++;
+//            }
+//            endNode = new Node<>(current.next);
+//            Node addNode = new Node<>(data, endNode);
+//            current.next = addNode;
+//        } else {
+//            while (current.next != null) {
+//                current = current.next;
+//            }
+//            current.next = new Node<>(data);
+//        }
+//    }
+
+    //특정 index까지만 loop
+    public Object get(int index) {
+        indexOutOfException(index);   //todo: index와 length 비교하는 조건 필요
 
         Node current = this.head;
-        Node endNode = null;
-        if (index == 0) {
-            endNode = this.head;
-            this.head = new Node<>(data, endNode);
-        } else if (index != length) {
-            int count = 1;
-            while (count < index) {
+        int i = 0;
+        if (index == 0) {       // 바로 head 추출
+            return head.data;
+        } else if (index == size()) {   // LinkedList의 max값 같으면 tail 추출
+            return tail.data;
+        } else {    // 그외 index까지의 loop문
+            while (i < index) {
                 current = current.next;
-                count++;
+                i++;
             }
-            endNode = new Node<>(current.next);
-            Node addNode = new Node<>(data, endNode);
-            current.next = addNode;
-        } else {
-            while(current.next != null) {
-                current = current.next;
-            }
-            current.next = new Node<>(data);
+            return current.data;
         }
-        length++;
     }
 
-    public Field get(int index) {
-        indexOutOfException(index);
-        int size = 0;
-        for (Node current = this.head; current != null; size++) {
-            if (index == size)
-                return current.data;
-            current = current.next;
-        }
-        return null;    //위에서 indexOutOfException 처리하고 있음
-    }
+    public Object remove(int index) {
+//        indexOutOfException(index);
 
-    public Field remove(int index) {
-        indexOutOfException(index);
-
-        Field result = null;
+        Object result = null;
         Node current = this.head;
         Node tempNode = null;
         if (index == 0) {   // head일 경우에만 prevData가 없음
-            result = (Field) head.data;
+            result = head.data;
             if (length == 1) {
                 head = null;
             } else {
                 tempNode = current.next;
                 head = tempNode;
             }
-            length--;
             return result;
         }
         for (int currentCount = 0, prevCount = index - 1; currentCount <= index; currentCount++) {
             if (length - 1 == index && currentCount == index) { //tail
-                result = (Field) current.data;
+                result = current.data;
                 current = null;
-                length--;
                 return result;
             } else if (currentCount == prevCount) {
                 tempNode = current;
             }
-            result = (Field) current.data;
+            result = current.data;
             current = current.next;
         }
         current = current.next;
         tempNode.next = current;
-        length--;
         return result;
     }
 
-    private static class Node<Field> {
-        Field data = null;
-        Node<Field> prev = null;
-        Node<Field> next = null;
+    private static class Node<T> {
+        T data = null;
+        Node prev = null;
+        Node next = null;
 
-        public Node(Field data) {
+        public Node(T data) {
             this.data = data;
-        }
-
-        public Node(Field data, Node<Field> next) {
-            this.data = data;
-            this.next = next;
-        }
-
-        public Node(Node<Field> node){
-            this.data = node.data;
-            this.next = node.next;
         }
     }
 }
