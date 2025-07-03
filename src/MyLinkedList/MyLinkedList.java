@@ -70,36 +70,32 @@ public class MyLinkedList {
         }
     }
 
-//    public void add(int index, Object data) {
+    //  특정 index까지만 loop
+    public void insert(int index, Object data) {
+        Node curNode = this.head;
+        if (index == 0) {
+            head = new Node<>(data);
+            head.next = curNode;
+        } else if (index == (size() -1)) {
+            curNode = tail;
+            tail = new Node<>(data);
+            tail.prev = curNode;
+            curNode.next = tail;
+        } else {
+            Node preNode = null;
+            int i = 0;
+            while(i < index) {
+                preNode = curNode;
+                curNode = curNode.next;
+                i++;
+            }
+            curNode.prev = preNode.next;
+            preNode.next = new Node<>(data);
+            preNode.next.next = curNode.prev;
+        }
+    }
 
-    /// /        indexOutOfException(length == index ? index - 1 : index);
-//
-//        Node current = this.head;
-//        Node endNode = null;
-//        if (index == 0) {
-//            endNode = this.head;
-//            this.head = new Node<>(data, endNode);
-//        } else if (index != length) {
-//            int count = 1;
-//            while (count < index) {
-//                current = current.next;
-//                count++;
-//            }
-//            endNode = new Node<>(current.next);
-//            Node addNode = new Node<>(data, endNode);
-//            current.next = addNode;
-//        } else {
-//            while (current.next != null) {
-//                current = current.next;
-//            }
-//            current.next = new Node<>(data);
-//        }
-//    }
-
-    //특정 index까지만 loop
     public Object get(int index) {
-        indexOutOfException(index);   //todo: index와 length 비교하는 조건 필요
-
         Node current = this.head;
         int i = 0;
         if (index == 0) {       // 바로 head 추출
@@ -116,34 +112,25 @@ public class MyLinkedList {
     }
 
     public Object remove(int index) {
-//        indexOutOfException(index);
-
         Object result = null;
-        Node current = this.head;
-        Node tempNode = null;
-        if (index == 0) {   // head일 경우에만 prevData가 없음
+        if (index == 0) {   // head
             result = head.data;
-            if (length == 1) {
-                head = null;
-            } else {
-                tempNode = current.next;
-                head = tempNode;
+            this.head = head.next;
+        } else if (index == (size() - 1)) { // tail
+            result = tail.data;
+            this.tail = tail.prev;
+        } else {    // else all
+            int i = 0;
+            Node curNode = head;
+            Node preNode = null;
+            while (i < index) {
+                preNode = curNode;  //이전 노드
+                curNode = curNode.next; //현재 노드
+                i++;
             }
-            return result;
+            preNode.next = curNode.next;
+            result = curNode.data;
         }
-        for (int currentCount = 0, prevCount = index - 1; currentCount <= index; currentCount++) {
-            if (length - 1 == index && currentCount == index) { //tail
-                result = current.data;
-                current = null;
-                return result;
-            } else if (currentCount == prevCount) {
-                tempNode = current;
-            }
-            result = current.data;
-            current = current.next;
-        }
-        current = current.next;
-        tempNode.next = current;
         return result;
     }
 
