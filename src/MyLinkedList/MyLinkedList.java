@@ -5,11 +5,6 @@ public class MyLinkedList {
     Node tail = null;
     private int length = 0;
 
-    private void indexOutOfException(int index) {
-        if (index >= length)
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + length);
-    }
-
 //    1. 안에서 제네릭 값 중 아무거나 들어올수있게 변경
 //    2. Node<Field> prev 추가
 //    2.1 특정 위치에 add하는 메서드 insert로 네이밍 변경
@@ -72,16 +67,24 @@ public class MyLinkedList {
 
     //  특정 index까지만 loop
     public void insert(int index, Object data) {
+        if (index != 0 && (index >= size() || index < 0)) {     //  LinkedList의 size가 0인 상태에서 0번째 순서의 데이터를 넣을 때의 분기 처리
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size());
+        }
+
         Node curNode = this.head;
-        if (index == 0) {
+        if (index == 0) {                   //  head
             head = new Node<>(data);
-            head.next = curNode;
-        } else if (index == (size() -1)) {
+            if (curNode != null) {     // insert시 size가 0인 상태에서 0번째 리스트에 넣을 경우
+                head.next = curNode;
+                tail = curNode;
+            }
+            tail = head;
+        } else if (index == (size() -1)) {  //  tail
             curNode = tail;
             tail = new Node<>(data);
             tail.prev = curNode;
             curNode.next = tail;
-        } else {
+        } else {                            //  else all
             Node preNode = null;
             int i = 0;
             while(i < index) {
@@ -96,13 +99,17 @@ public class MyLinkedList {
     }
 
     public Object get(int index) {
+        if (index >= size() || index < 0) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size());
+        }
+
         Node current = this.head;
         int i = 0;
-        if (index == 0) {       // 바로 head 추출
+        if (index == 0) {       //  head
             return head.data;
         } else if (index == size()) {   // LinkedList의 max값 같으면 tail 추출
             return tail.data;
-        } else {    // 그외 index까지의 loop문
+        } else {    // 그외 index까지의 loop
             while (i < index) {
                 current = current.next;
                 i++;
@@ -112,6 +119,10 @@ public class MyLinkedList {
     }
 
     public Object remove(int index) {
+        if (index >= size() || index < 0) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size());
+        }
+
         Object result = null;
         if (index == 0) {   // head
             result = head.data;
